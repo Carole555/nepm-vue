@@ -26,7 +26,6 @@
 
 <script setup>
 import axios from '../utils/axios'
-import md5 from 'js-md5'
 import { reactive, ref } from 'vue'
 import { localSet } from '../utils'
 
@@ -53,7 +52,14 @@ const submitForm = async () => {
             axios.post('http://localhost:8083/user/login',state.ruleForm
             ).then(res => {
                 localSet('token', res)
-                window.location.href = '/'
+                //身份为管理员进入管理员主页面
+                if(res.dname === 'manager'){
+                    console.log(res.dname)
+                    window.location.href = '/'
+                }
+                //
+
+
             })
                 .catch(error => {
                     console.error('登录请求失败:', error)
@@ -64,9 +70,6 @@ const submitForm = async () => {
             return false;
         }
     })
-}
-const resetForm = () => {
-    loginForm.value.resetFields();
 }
 </script>
 
