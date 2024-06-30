@@ -3,6 +3,7 @@
 import { onMounted, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from '../utils/axios'
+import Aside from "../components/Layout.vue";
 
 const route = useRoute()
 const { id } = route.query
@@ -53,6 +54,8 @@ const TableHeader = [
 </script>
 
 <template>
+    <Aside>
+        <template #default>
     <el-card class="public-container">
     <el-table
             :data="state.tableData"
@@ -68,6 +71,8 @@ const TableHeader = [
         </el-table-column>
     </el-table>
     </el-card>
+        </template>
+    </Aside>
 </template>
 
 <style scoped>

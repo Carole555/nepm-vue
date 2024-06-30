@@ -4,6 +4,7 @@ import { onMounted, reactive } from 'vue'
 import { useRoute } from 'vue-router'
 import axios from '../utils/axios'
 import {provinceAndCityOption} from "../main.js";
+import Aside from "../components/Layout.vue";
 
 const route = useRoute()
 const { id } = route.query
@@ -54,6 +55,8 @@ const TableHeader = [
 </script>
 
 <template>
+    <Aside>
+        <template #default>
     <el-card class="public-container">
         <el-table
                 :data="state.tableData"
@@ -96,6 +99,8 @@ const TableHeader = [
             <el-button style="margin-left: 10px">指派</el-button>
         </div>
     </el-card>
+        </template>
+    </Aside>
 </template>
 
 <style scoped>

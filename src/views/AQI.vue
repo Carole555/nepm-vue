@@ -2,6 +2,7 @@
 import { onMounted, reactive, ref} from 'vue'
 import axios from '../utils/axios'
 import {provinceAndCityOption} from "../main.js";
+import Aside from "../components/Layout.vue";
 
 const props1 = {
     checkStrictly: true,
@@ -94,6 +95,8 @@ const handleDelete = () => {
 </script>
 
 <template>
+    <Aside>
+        <template #default>
     <el-card class="public-container">
         <template #header>
             <div class="header">
@@ -187,6 +190,8 @@ const handleDelete = () => {
                 @current-change="changePage"
         />
     </el-card>
+        </template>
+    </Aside>
 </template>
 
 <style scoped>

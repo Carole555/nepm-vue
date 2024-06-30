@@ -42,6 +42,9 @@ const state = reactive({
 })
 // 初始化执行方法
 onMounted(() => {
+    const routeName = router.currentRoute.value.name;  // 获取当前路由名
+    state.name = pathMap[routeName] || '首页';  // 设置初始的state.name
+    state.hasBack = ['public_detail', 'assign','aqi_detail'].includes(routeName)
     const pathname = window.location.hash.split('/')[1] || ''
     if (!['login'].includes(pathname)) {
         getUserInfo()
@@ -85,7 +88,7 @@ const back = () => {
     align-items: center;
     padding: 0 20px;
 }
-.header .left .back {
+.header .left .back{
     border: 1px solid #e9e9e9;
     padding: 5px;
     border-radius: 50%;

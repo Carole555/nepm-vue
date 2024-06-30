@@ -1,4 +1,6 @@
 <template>
+    <Aside>
+    <template #default>
     <el-card class="public-container">
         <template #header>
             <div class="header">
@@ -96,18 +98,21 @@
         <el-pagination
                 background
                 layout="prev, pager, next"
-                :total="state.total"
+                :total="state.tableData.length"
                 :page-size="state.pageSize"
                 :current-page="state.currentPage"
                 @current-change="changePage"
         />
     </el-card>
+    </template>
+    </Aside>
 </template>
 
 <script setup>
 import { onMounted, reactive, ref} from 'vue'
 import axios from '../utils/axios'
 import {provinceAndCityOption} from '../main.js'
+import Aside from "../components/Layout.vue";
 
 const selectedOptions = ref([])
 
@@ -122,7 +127,6 @@ const state = reactive({
     loading: false,
     tableData: [], // 数据列表
     selection: '', // 选中省市
-    total: 0, // 总条数
     currentPage: 1, // 当前页
     pageSize: 10, // 分页大小
     id: '', // 编号
@@ -160,7 +164,19 @@ onMounted(() => {
 // 获取列表方法
 const getList = () => {
     state.loading = true
-    axios.get('/public', {
+    axios.get('http://localhost:8087/messagePublic/viewAllMessagePublic', {}).then(res => {
+        state.tableData = res.list
+        state.currentPage = res.currPage
+        state.loading = false
+    })
+}
+
+const handleQuery = () => {
+    state.currentPage = 1
+
+
+    state.loading = true
+    axios.get('http://localhost:8087/messagePublic/viewAllMessagePublic', {
         params: {
             pageNumber: state.currentPage,
             pageSize: state.pageSize,
@@ -170,21 +186,15 @@ const getList = () => {
         }
     }).then(res => {
         state.tableData = res.list
-        state.total = res.totalCount
         state.currentPage = res.currPage
         state.loading = false
     })
-}
 
-const handleQuery = () => {
-    state.currentPage = 1
-    getList()
 }
 
 // 翻页方法
 const changePage = (val) => {
     state.currentPage = val
-    getList()
 }
 
 // const handleChange = (selectedOptions) => {

@@ -2,6 +2,7 @@
 
 import {onMounted} from "vue";
 import axios from "../utils/axios.js";
+import Aside from "../components/Layout.vue";
 
 let tableData = [];
 
@@ -39,6 +40,8 @@ const TableHeader = [
 </script>
 
 <template>
+    <Aside>
+        <template #default>
     <el-card class="public-container">
         <el-table
             :data="state.tableData"
@@ -54,6 +57,8 @@ const TableHeader = [
             </el-table-column>
         </el-table>
     </el-card>
+        </template>
+    </Aside>
 </template>
 
 <style scoped>
