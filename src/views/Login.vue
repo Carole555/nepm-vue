@@ -86,6 +86,7 @@ const submitForm = async () => {
     width: 420px;
     height: 480px;
     background-color: #fff;
+    margin-top: 100px;
     border-radius: 4px;
     box-shadow: 0px 21px 41px 0px rgba(0, 0, 0, 0.2);
 }

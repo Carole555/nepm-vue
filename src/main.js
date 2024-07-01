@@ -38,11 +38,23 @@ export const provinceAndCityOption = [
     },
     {
         value: '1',
-        label: '北京市'
+        label: '北京市',
+        children: [
+            {
+                value: '1-1',
+                label: '北京市'
+            }
+        ]
     },
     {
         value: '2',
-        label: '天津市'
+        label: '天津市',
+        children: [
+            {
+                value: '2-1',
+                label: '天津市'
+            }
+        ]
     },
     {
         value: '3',
@@ -152,7 +164,13 @@ export const provinceAndCityOption = [
     },
     {
         value: '9',
-        label: '上海市'
+        label: '上海市',
+        children: [
+            {
+                value: '9-1',
+                label: '上海市'
+            }
+        ]
     },
     {
         value: '10',
@@ -408,7 +426,13 @@ export const provinceAndCityOption = [
     },
     {
         value: '22',
-        label: '重庆市'
+        label: '重庆市',
+        children: [
+            {
+                value: '22-1',
+                label: '重庆市'
+            }
+        ]
     },
     {
         value: '23',
@@ -575,11 +599,23 @@ export const provinceAndCityOption = [
     },
     {
         value: '32',
-        label: '香港特别行政区'
+        label: '香港特别行政区',
+        children: [
+            {
+                value: '32-1',
+                label: '香港特别行政区'
+            }
+        ]
     },
     {
         value: '33',
-        label: '澳门特别行政区'
+        label: '澳门特别行政区',
+        children: [
+            {
+                value: '33-1',
+                label: '澳门特别行政区'
+            }
+        ]
     },
     {
         value: '34',

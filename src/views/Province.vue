@@ -11,9 +11,7 @@ onMounted(() => {
 })
 // 获取列表方法
 const getList = () => {
-    axios.get('/province', {
-
-    }).then(res => {
+    axios.get('http://localhost:8085/messageGriddler/viewProvinceSubgroup', {}).then(res => {
         tableData = res.list
     })
 }
