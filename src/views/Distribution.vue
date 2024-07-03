@@ -1,21 +1,25 @@
 <script setup>
 
-import {onMounted} from "vue";
+import {onMounted, ref} from "vue";
 import axios from "../utils/axios.js";
 import Aside from "../components/Layout.vue";
 
-let tableData = [];
+const allData = ref([])
 
 onMounted(() => {
     getList()
 })
 // 获取列表方法
 const getList = () => {
-    axios.get('/distribution', {
-
-    }).then(res => {
-        tableData = res.list
-    })
+    axios.get('http://localhost:8085/messageGriddler/viewAQILevel', {}).then(res => {
+        allData.value = res.map(item => ({
+            level: item.aqiLevel,
+            description: item.description,
+            distribution: item.countNum
+        }));
+    }).catch(error => {
+        console.error('Error fetching data: ', error);
+    });
 }
 
 </script>
@@ -25,7 +29,7 @@ const getList = () => {
         <template #default>
     <el-card class="public-container">
         <el-table
-                :data="tableData"
+                :data="allData"
                 tooltip-effect="dark"
                 style="width: 100%">
             <el-table-column

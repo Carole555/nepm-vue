@@ -1,10 +1,10 @@
 <script setup>
 
-import {onMounted} from "vue";
+import {onMounted, ref} from "vue";
 import axios from "../utils/axios.js";
 import Aside from "../components/Layout.vue";
 
-let tableData = [];
+const allData = ref([])
 
 onMounted(() => {
     getList()
@@ -12,8 +12,20 @@ onMounted(() => {
 // 获取列表方法
 const getList = () => {
     axios.get('http://localhost:8085/messageGriddler/viewProvinceSubgroup', {}).then(res => {
-        tableData = res.list
-    })
+        console.log(Array.isArray(res) ? 'array' : 'not array');
+        console.log('这里是res',res)
+        allData.value = res.map(item => ({
+            provinceId: item.provinceId,
+            nickName: item.provinceShortTitle,
+            provinceName: item.provinceName,
+            so2: item.soNum,
+            co: item.coNum,
+            pm25: item.pmNum,
+            aqi: item.aqinum
+        }));
+    }).catch(error => {
+        console.error('Error fetching data: ', error);
+    });
 }
 
 </script>
@@ -23,7 +35,7 @@ const getList = () => {
         <template #default>
     <el-card class="public-container">
         <el-table
-                :data="tableData"
+                :data="allData"
                 tooltip-effect="dark"
                 style="width: 100%">
             <el-table-column
@@ -52,7 +64,7 @@ const getList = () => {
             >
             </el-table-column>
             <el-table-column
-                    prop="pm2.5"
+                    prop="pm25"
                     label="PM2.5超标累计"
             >
             </el-table-column>

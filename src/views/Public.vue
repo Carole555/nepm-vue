@@ -14,7 +14,7 @@
                         clearable>
                 </el-cascader>
                 <el-text class="mx-1" style="margin-right: 10px">预估等级</el-text>
-                <el-select v-model="state.description" style="width: 200px; margin-right: 15px" placeholder="全部">
+                <el-select v-model="state.level" style="width: 200px; margin-right: 15px" placeholder="全部">
                     <el-option
                             v-for="item in state.options"
                             :key="item.value"
@@ -29,11 +29,11 @@
                         placeholder="反馈日期"
                         style="margin-right: 15px"
                 />
-                <el-button type="danger" :@click="handleDelete()">重置</el-button>
-                <el-button type="primary" :@click="handleQuery()">查询</el-button>
-                <el-radio-group v-model="state.status" style="margin-left: 40px">
-                    <el-radio-button label="未指派" value="0" />
-                    <el-radio-button label="已指派" value="1" />
+                <el-button type="danger" @click="reset">重置</el-button>
+                <el-button type="primary" @click="handleQuery">查询</el-button>
+                <el-radio-group v-model="state.status" style="margin-left: 40px" @change="handleStatusChange">
+                    <el-radio-button label="未指派" value="0"/>
+                    <el-radio-button label="已指派" value="1"/>
                 </el-radio-group>
             </div>
         </template>
@@ -55,25 +55,16 @@
                     prop="province"
                     label="所在省"
             >
-                <!--                <template #default="scope">-->
-                <!--                    <span>{{ $filters.orderMap(scope.row.orderStatus) }}</span>-->
-                <!--                </template>-->
             </el-table-column>
             <el-table-column
                     prop="city"
                     label="所在市"
             >
-                <!--                <template #default='scope'>-->
-                <!--                    <span v-if="scope.row.payType == 1">微信支付</span>-->
-                <!--                    <span v-else-if="scope.row.payType == 2">支付宝支付</span>-->
-                <!--                    <span v-else>未知</span>-->
-                <!--                </template>-->
             </el-table-column>
             <el-table-column
                     prop="level"
                     label="预估污染等级">
                 <template #default="scope">
-                    <!-- 这里使用计算属性或方法来找到匹配的option -->
                     <span :style="{ color: findOptionByValue(scope.row.level).color, fontWeight: 'bold' }">
                         {{ findOptionByValue(scope.row.level).label }}
                     </span>
@@ -94,7 +85,8 @@
             >
                 <template #default="scope">
                     <router-link :to="{ path: '/public_detail', query: { id: scope.row.id }}" style="margin-right: 10px">查看详情</router-link>
-                    <router-link :to="{ path: '/assign', query: { id: scope.row.id }}">指派</router-link>
+                    <router-link v-if="scope.row.status !== 1" :to="{ path: '/assign', query: { id: scope.row.id }}">指派</router-link>
+                    <span v-else style="color: #ccc; cursor: not-allowed;">指派</span>
                 </template>
             </el-table-column>
         </el-table>
@@ -130,12 +122,11 @@ const date = ref('');
 const currentPageRef = ref(1);
 new Date();
 const state = reactive({
-    loading: false,
     tableData: [], // 数据列表
-    selection: '', // 选中省市
+    selection: [], // 选中省市
     pageSize: 11, // 分页大小
     id: '', // 编号
-    description: '', // 预估等级
+    level: '', // 预估等级
     date:'', //反馈日期
     status: '', //是否指派
     options: [{
@@ -169,11 +160,16 @@ const state = reactive({
 })
 
 const isDataLoaded = ref(false);
+const isDataQueried = ref(false);
 
 // 初始化获取列表
 onMounted(() => {
-    getList()
-})
+    console.log('这里是初始化');
+    if (!isDataLoaded.value) {
+        getList();
+    }
+});
+
 
 const findOptionByValue = (value) => {
     const option = state.options.find(option => option.value === value);
@@ -184,64 +180,102 @@ const findOptionByValue = (value) => {
 // 获取列表方法
 const getList = () => {
     if (isDataLoaded.value) return;
-    state.loading = true
-    axios.post('http://localhost:8087/messagePublic/viewAllMessagePublic', {}).then(res => {
-        console.log(Array.isArray(res) ? 'array' : 'not array')
-        console.log(res)
+    console.log('触发了getList方法！');
+    axios.post('http://localhost:8087/messagePublic/viewSomeMessagePublic', {
+        params: {
+            current:currentPageRef.value,
+            size:state.pageSize
+        }
+    }).then(res => {
+        console.log(Array.isArray(res) ? 'array' : 'not array');
         allData.value = res.map(item => ({
             id: item.messagePublic.id,
             publicName: item.apublic ? item.apublic.name : '未知',
             province: item.provinceName,
             city: item.cityName,
             level: item.messagePublic.level,
-            date: item.messagePublic.date.split('T')[0],// T之前的部分是日期
-            time: item.messagePublic.date.split('T')[1].split('.')[0]// T之后的部分先按'.'分割，取第一个部分为时间
+            date: item.messagePublic.date.split('T')[0],
+            time: item.messagePublic.date.split('T')[1].split('.')[0],
+            status: item.messagePublic.status
         }));
         totalRecords.value = allData.value.length;
-        state.loading = false;
         handlePageChange(1); // 初始化设置第一页数据
         isDataLoaded.value = true; // 标记数据已加载
     }).catch(error => {
         console.error('Error fetching data: ', error);
-        state.loading = false;
-    })
+    });
 }
+
+const handleStatusChange = (value) => {
+    console.log('触发了handleStatusChange方法，状态值为：', value);
+    state.status = value;
+    handleQuery();
+}
+
 
 //查询方法
 const handleQuery = () => {
-    currentPageRef.value = 1
-    state.loading = true
+    console.log('触发了handleQuery方法！');
+    console.log(typeof state.date)
+    currentPageRef.value = 1;
+    const  provinceId = state.selection[0]
+    const  cityId = state.selection[1]
     axios.get('http://localhost:8087/messagePublic/viewSomeMessagePublic', {
         params: {
-            selection: state.selection,
-            description: state.description,
-            date: state.date
+            provinceId: provinceId ? provinceId : null,
+            cityId: cityId ? cityId : null,
+            level: state.level ? state.level : null,
+            date: state.date ? state.date : null,
+            status: state.status ? state.status : null
+            current:currentPageRef.value,
+            size:state.pageSize
         }
     }).then(res => {
-        state.tableData = res.list
-        state.currentPage = res.currPage
-        state.loading = false
-    })
-
+        allData.value = res.map(item => ({
+            id: item.messagePublic.id,
+            publicName: item.apublic ? item.apublic.name : '未知',
+            province: item.provinceName,
+            city: item.cityName,
+            level: item.messagePublic.level,
+            date: item.messagePublic.date.split('T')[0],
+            time: item.messagePublic.date.split('T')[1].split('.')[0],
+            status: item.messagePublic.status
+        }));
+        totalRecords.value = allData.value.length;
+        handlePageChange(1); // 初始化设置第一页数据
+        isDataQueried.value = true; // 标记数据已查到
+    }).catch(error => {
+        console.error('Error fetching data: ', error);
+    });
 }
+
 
 // 翻页方法
 const handlePageChange  = (currentPage) => {
     console.log("Changing to page: ", currentPage);
     currentPageRef.value = currentPage
-    const startIndex = (currentPageRef.value - 1) * state.pageSize;
+    const startIndex = (currentPage - 1) * state.pageSize;
     const endIndex = startIndex + state.pageSize;
     state.tableData = allData.value.slice(startIndex, endIndex); // 获取当前页的数据片段
     console.log("New data slice: ", state.tableData);
 }
 
 
-const handleDelete = () => {
-    state.selection = ''
-    state.description =''
-    state.date = ''
-    getList()
+const reset = () => {
+    console.log('触发了reset方法！')
+    state.selection = '';
+    state.level = '';
+    state.date = '';
+    state.status = '';
+    isDataLoaded.value = false; // 重置数据加载状态
+    currentPageRef.value = 1; // 重置分页组件的选中项到第一页
+    getList();
+        // handlePageChange(1); // 手动触发分页变化，加载第一页数据
+        //
+
 }
+
+
 
 </script>
 

@@ -22,11 +22,7 @@ axios.interceptors.response.use(res => {
     return Promise.reject(res)
   }
   if (res.data.success !== true) {
-    this.$message({
-      type: 'error',
-      message: res.data.message
-    })
-    if (res.data.message) ElMessage.error(res.data.message)
+      ElMessage.error(res.data.message)
     return Promise.reject(res.data)
   }
 

@@ -12,10 +12,10 @@ const state = reactive({
     tableData: []
 })
 onMounted(() => {
-    axios.get(`/public/${id}`).then(res => {
+    axios.get(`http://localhost:8087/messagePublic/selectMessagePublic/${id}`).then(res => {
         console.log(res)
-        state.data = res
-        state.tableData = res.publicData
+        state.tableData = res
+
     })
 })
 
