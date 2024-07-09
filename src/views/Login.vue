@@ -20,6 +20,10 @@
                 <el-form-item>
                     <el-button style="width: 100%" color="#1AA8A8" type="primary" @click="submitForm">立即登录</el-button>
                 </el-form-item>
+              <!-- 注册链接 -->
+              <div class="register-link">
+                <router-link to="/register">没有账号？注册新账号</router-link>
+              </div>
             </el-form>
         </div>
     </div>
@@ -122,5 +126,19 @@ const submitForm = async () => {
 
 .form-spacing {
     height: 20px;
+}
+
+.register-link {
+  text-align: center;
+  margin-top: 15px;
+}
+
+.register-link a {
+  color: #1BAEAE;
+  text-decoration: none;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
 }
 </style>

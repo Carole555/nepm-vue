@@ -11,6 +11,7 @@ export default ({ mode }) => defineConfig({
     vue(),
     // 按需引入，主题色的配置，需要加上 importStyle: 'sass'
     Components({
+      dirs: ['src/components'],
       resolvers: [ElementPlusResolver({
         importStyle: 'sass'
       })],
@@ -25,6 +26,7 @@ export default ({ mode }) => defineConfig({
   },
   base: './',
   server: {
+    port: 3000
     // proxy: {
     //   '/api': {
     //     target: 'http://localhost:8083', // 凡是遇到 /api 路径的请求，都映射到 target 属性

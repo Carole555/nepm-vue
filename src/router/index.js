@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-
 const router = createRouter({
     history: createWebHashHistory(), // hash模式：createWebHashHistory，history模式：createWebHistory
     routes: [
@@ -56,7 +55,39 @@ const router = createRouter({
             path: '/trend',
             name: 'trend',
             component: () => import(/* webpackChunkName: "trend" */ '../views/Trend.vue')
-        }
+        },
+        {
+            path: '/register',
+            name: 'Register',
+            component: () => import(/* webpackChunkName: "trend" */ '../views/Register.vue')
+        },
+        {
+            path: '/home',
+            name: 'Home',
+            component: () => import(/* webpackChunkName: "trend" */ '../views/Home.vue')
+        },
+        {
+            path: '/select/:provinceId/:cityId/:address',
+            name: 'Select',
+            component: () => import(/* webpackChunkName: "trend" */ '../views/Select.vue')
+        },
+        {
+            path: '/feedbackInfo',
+            name: 'FeedbackInfo',
+            component: () => import(/* webpackChunkName: "trend" */ '../views/FeedbackInfo.vue')
+        },
+        {
+            path: '/feedbackTask',
+            name: 'FeedbackTask',
+            component: () => import(/* webpackChunkName: "trend" */ '../views/FeedbackTask.vue')
+        },
+        {
+            path: '/detailedInfo',
+            name: 'DetailedInfo',
+            component: () => import(/* webpackChunkName: "trend" */ '../views/DetailedInfo.vue')
+        },
+
+
     ]
 })
 

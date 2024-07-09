@@ -24,12 +24,13 @@ import {
     ElRadioGroup,
     ElRadio,
     ElSelect,
-    ElOption
+    ElOption,
+    ElCarousel,
+    ElCarouselItem,
 } from 'element-plus'
 import App from './App.vue'
 import router from './router'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
-
 
 export const provinceAndCityOption = [
     {
@@ -700,4 +701,7 @@ app.use(ElButton)
     .use(ElRadio)
     .use(ElSelect)
     .use(ElOption)
+    .use(ElCarousel)
+    .use(ElCarouselItem)
+
 app.mount('#app') // 挂载到 #app
