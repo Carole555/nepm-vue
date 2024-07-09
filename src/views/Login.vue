@@ -34,6 +34,7 @@
 import axios from '../utils/axios'
 import { reactive, ref } from 'vue'
 import { localSet } from '../utils'
+import {ElMessage} from "element-plus";
 
 const loginForm = ref(null)
 const state = reactive({
@@ -71,9 +72,6 @@ const submitForm = async () => {
                   ElMessage('登录成功')
                   window.location.href = '/#/feedbackTask'
                 }
-                //
-
-
             })
                 .catch(error => {
                     console.error('登录请求失败:', error)
