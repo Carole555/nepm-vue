@@ -6,7 +6,7 @@
                 <img class="logo" src="../assets/white.png" />
                 <div class="name">
                     <div class="title">东软环保</div>
-                    <div class="tips">公众监督平台管理系统</div>
+                    <div class="tips">公众监督平台系统</div>
                 </div>
             </div>
             <el-form label-position="top" :rules="state.rules" :model="state.ruleForm" ref="loginForm" class="login-form">
@@ -62,6 +62,14 @@ const submitForm = async () => {
                 if(res.dname === 'manager'){
                     console.log(res.dname)
                     window.location.href = '/'
+                }else if(res.dname === 'public'){
+                  localStorage.setItem('userId', res.user.id);// 存储用户ID
+                  ElMessage('登录成功')
+                  window.location.href = '/#/home'
+                }else if(res.dname === 'griddler'){
+                  localStorage.setItem('userId', res.id);// 存储用户ID
+                  ElMessage('登录成功')
+                  window.location.href = '/#/feedbackTask'
                 }
                 //
 
