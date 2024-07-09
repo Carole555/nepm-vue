@@ -22,7 +22,9 @@ const getList = () => {
             co: item.coNum,
             pm25: item.pmNum,
             aqi: item.aqinum
-        }));
+        })).sort((a, b) => {
+            return parseInt(a.provinceId) - parseInt(b.provinceId);
+        });
     }).catch(error => {
         console.error('Error fetching data: ', error);
     });

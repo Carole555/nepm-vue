@@ -42,7 +42,7 @@
                 tooltip-effect="dark"
                 style="width: 100%">
             <el-table-column
-                    prop="id"
+                    prop="number"
                     label="编号"
             >
             </el-table-column>
@@ -84,19 +84,18 @@
                     label="操作"
             >
                 <template #default="scope">
-                    <router-link :to="{ path: '/public_detail', query: { id: scope.row.id }}" style="margin-right: 10px">查看详情</router-link>
-                    <router-link v-if="scope.row.status !== 1" :to="{ path: '/assign', query: { id: scope.row.id }}">指派</router-link>
+                    <router-link :to="{ path: '/public_detail', query: { messageId: scope.row.id, status:scope.row.status}}" style="margin-right: 10px">查看详情</router-link>
+                    <router-link v-if="scope.row.status !== 1" :to="{ path: '/assign', query: { messageId: scope.row.id }}">指派</router-link>
                     <span v-else style="color: #ccc; cursor: not-allowed;">指派</span>
                 </template>
             </el-table-column>
         </el-table>
         <el-pagination
-                :key="totalRecords"
                 background
                 layout="prev, pager, next"
-                :total="totalRecords"
+                :total="state.total"
                 :page-size="state.pageSize"
-                :current-page="currentPageRef.value"
+                :current-page="state.currentPage"
                 @current-change="handlePageChange"
         />
     </el-card>
@@ -110,25 +109,22 @@ import axios from '../utils/axios'
 import {provinceAndCityOption} from '../main.js'
 import Aside from "../components/Layout.vue";
 
-const selectedOptions = ref([])
-
 const props1 = {
     checkStrictly: true,
 }
 
-const totalRecords = ref(0);
-const allData = ref([]); // 用于存储从服务器加载的全部数据
-const date = ref('');
-const currentPageRef = ref(1);
 new Date();
 const state = reactive({
     tableData: [], // 数据列表
     selection: [], // 选中省市
+    total: 0, // 总条数
+    currentPage: 1, // 当前页
     pageSize: 11, // 分页大小
     id: '', // 编号
     level: '', // 预估等级
-    date:'', //反馈日期
+    date: '', //反馈日期
     status: '', //是否指派
+    startIndex: 1, // 编号起始索引
     options: [{
         value: '',
         label: '全部'
@@ -160,7 +156,6 @@ const state = reactive({
 })
 
 const isDataLoaded = ref(false);
-const isDataQueried = ref(false);
 
 // 初始化获取列表
 onMounted(() => {
@@ -170,25 +165,36 @@ onMounted(() => {
     }
 });
 
-
 const findOptionByValue = (value) => {
     const option = state.options.find(option => option.value === value);
     return option || { label: '未知', color: '#000000' };  // 提供默认值防止未找到时报错
 };
 
-
 // 获取列表方法
 const getList = () => {
     if (isDataLoaded.value) return;
-    console.log('触发了getList方法！');
-    axios.post('http://localhost:8087/messagePublic/viewSomeMessagePublic', {
-        params: {
-            current:currentPageRef.value,
-            size:state.pageSize
-        }
+    const  provinceId = state.selection[0]
+    const  cityId = state.selection[1]
+    console.log('state.currentPage',state.currentPage);
+    const params = {
+        provinceId: provinceId,
+        cityId: cityId,
+        level: state.level,
+        date: state.date,
+        status: state.status,
+        current:state.currentPage,
+        size:state.pageSize
+    };
+    const filteredParams = Object.fromEntries(
+        Object.entries(params).filter(([, value]) => value !== null && value !== undefined && value !== '')
+    );
+    axios.get('http://localhost:8087/messagePublic/viewSomeMessagePublic', {
+        params:filteredParams
     }).then(res => {
-        console.log(Array.isArray(res) ? 'array' : 'not array');
-        allData.value = res.map(item => ({
+        console.log(res)
+        console.log(Array.isArray(res.data) ? 'array' : 'not array');
+        state.startIndex = (state.currentPage - 1) * state.pageSize + 1; // 计算编号起始索引
+        state.tableData = res.data.map((item,index) => ({
             id: item.messagePublic.id,
             publicName: item.apublic ? item.apublic.name : '未知',
             province: item.provinceName,
@@ -196,10 +202,10 @@ const getList = () => {
             level: item.messagePublic.level,
             date: item.messagePublic.date.split('T')[0],
             time: item.messagePublic.date.split('T')[1].split('.')[0],
-            status: item.messagePublic.status
+            status: item.messagePublic.status,
+            number: state.startIndex + index // 增加编号字段
         }));
-        totalRecords.value = allData.value.length;
-        handlePageChange(1); // 初始化设置第一页数据
+        state.total = res.result;
         isDataLoaded.value = true; // 标记数据已加载
     }).catch(error => {
         console.error('Error fetching data: ', error);
@@ -207,103 +213,36 @@ const getList = () => {
 }
 
 const handleStatusChange = (value) => {
-    console.log('触发了handleStatusChange方法，状态值为：', value);
     state.status = value;
     handleQuery();
 }
 
-
 //查询方法
 const handleQuery = () => {
-    console.log('触发了handleQuery方法！');
-    console.log(typeof state.date)
-    currentPageRef.value = 1;
-    const  provinceId = state.selection[0]
-    const  cityId = state.selection[1]
-    axios.get('http://localhost:8087/messagePublic/viewSomeMessagePublic', {
-        params: {
-            provinceId: provinceId ? provinceId : null,
-            cityId: cityId ? cityId : null,
-            level: state.level ? state.level : null,
-            date: state.date ? state.date : null,
-            status: state.status ? state.status : null
-            current:currentPageRef.value,
-            size:state.pageSize
-        }
-    }).then(res => {
-        allData.value = res.map(item => ({
-            id: item.messagePublic.id,
-            publicName: item.apublic ? item.apublic.name : '未知',
-            province: item.provinceName,
-            city: item.cityName,
-            level: item.messagePublic.level,
-            date: item.messagePublic.date.split('T')[0],
-            time: item.messagePublic.date.split('T')[1].split('.')[0],
-            status: item.messagePublic.status
-        }));
-        totalRecords.value = allData.value.length;
-        handlePageChange(1); // 初始化设置第一页数据
-        isDataQueried.value = true; // 标记数据已查到
-    }).catch(error => {
-        console.error('Error fetching data: ', error);
-    });
+    isDataLoaded.value = false;
+    state.currentPage = 1;
+    getList()
 }
-
 
 // 翻页方法
 const handlePageChange  = (currentPage) => {
-    console.log("Changing to page: ", currentPage);
-    currentPageRef.value = currentPage
-    const startIndex = (currentPage - 1) * state.pageSize;
-    const endIndex = startIndex + state.pageSize;
-    state.tableData = allData.value.slice(startIndex, endIndex); // 获取当前页的数据片段
-    console.log("New data slice: ", state.tableData);
+    state.currentPage = currentPage
+    isDataLoaded.value = false;
+    getList()
 }
 
-
 const reset = () => {
-    console.log('触发了reset方法！')
     state.selection = '';
     state.level = '';
     state.date = '';
     state.status = '';
     isDataLoaded.value = false; // 重置数据加载状态
-    currentPageRef.value = 1; // 重置分页组件的选中项到第一页
+    state.currentPage = 1; // 重置分页组件的选中项到第一页
     getList();
-        // handlePageChange(1); // 手动触发分页变化，加载第一页数据
-        //
-
 }
-
-
 
 </script>
 
-
-
 <style scoped>
-.demo-date-picker {
-    display: flex;
-    width: 100%;
-    padding: 0;
-    flex-wrap: wrap;
-}
 
-.demo-date-picker .block {
-    padding: 30px 0;
-    text-align: center;
-    border-right: solid 1px var(--el-border-color);
-    flex: 1;
-}
-
-.demo-date-picker .block:last-child {
-    border-right: none;
-}
-
-.demo-date-picker .demonstration {
-    display: block;
-    color: var(--el-text-color-secondary);
-    font-size: 14px;
-    margin-bottom: 20px;
-}
 </style>

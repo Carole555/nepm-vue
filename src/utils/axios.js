@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
-import router from '../router/index'
 import { localGet } from './index'
 import config from '/config'
 
@@ -25,7 +24,9 @@ axios.interceptors.response.use(res => {
       ElMessage.error(res.data.message)
     return Promise.reject(res.data)
   }
-
+  if (res.config.url === 'http://localhost:8087/messagePublic/viewSomeMessagePublic'||res.config.url === 'http://localhost:8085/messageGriddler/viewAllMessageGriddler') {
+    return res.data
+  }
   return res.data.data
 })
 

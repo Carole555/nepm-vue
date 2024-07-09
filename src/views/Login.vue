@@ -1,5 +1,6 @@
 <template>
-    <div class="login-body">
+    <body id="paper">
+    <div class="login-body" >
         <div class="login-container">
             <div class="head">
                 <img class="logo" src="../assets/white.png" />
@@ -22,6 +23,7 @@
             </el-form>
         </div>
     </div>
+    </body>
 </template>
 
 <script setup>
@@ -75,12 +77,15 @@ const submitForm = async () => {
 
 
 <style scoped>
+#paper {
+    background:  url("../assets/login.png") no-repeat;
+}
 .login-body {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    background-color: #fff;
+    //background-color: #fff;
 }
 .login-container {
     width: 420px;
@@ -114,12 +119,7 @@ const submitForm = async () => {
     width: 70%;
     margin: 0 auto;
 }
-.login-form >>> .el-form--label-top .el-form-item__label {
-    padding: 0;
-}
-.login-form >>> .el-form-item {
-    margin-bottom: 25px;
-}
+
 .form-spacing {
     height: 20px;
 }

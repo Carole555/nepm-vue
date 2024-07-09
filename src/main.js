@@ -646,6 +646,22 @@ export const provinceAndCityOption = [
     }
 ]
 
+export const getLabelById = (id) => {
+    for (const province of provinceAndCityOption) {
+        if (province.value === id) {
+            return province.label;
+        }
+        if (province.children) {
+            for (const city of province.children) {
+                if (city.value === id) {
+                    return city.label;
+                }
+            }
+        }
+    }
+    return '';
+}
+
 const app = createApp(App)
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component)

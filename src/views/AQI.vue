@@ -1,96 +1,133 @@
 <script setup>
 import { onMounted, reactive, ref} from 'vue'
 import axios from '../utils/axios'
-import {provinceAndCityOption} from "../main.js";
+import {getLabelById, provinceAndCityOption} from "../main.js";
 import Aside from "../components/Layout.vue";
 
 const props1 = {
     checkStrictly: true,
 }
 
-
-const date = ref('')
 new Date();
 const state = reactive({
-    loading: false,
     tableData: [], // 数据列表
     selection: '', // 选中省市
     total: 0, // 总条数
     currentPage: 1, // 当前页
-    pageSize: 10, // 分页大小
+    pageSize: 11, // 分页大小
     id: '', // 编号
-    description: '', // 预估等级
-    date:'', //确认日期
-    status: '', //是否指派
+    description: '', // AQI等级
+    date: '', //确认日期
+    griddler: '', //网格员
+    public: '', //反馈者
+    startIndex: 1, // 编号起始索引
     options: [{
         value: '',
         label: '全部'
     }, {
         value: 1,
-        label: '优（一）'
+        label: '优（一）',
+        color: '#00E400'
     }, {
         value: 2,
-        label: '良（二）'
+        label: '良（二）',
+        color: '#C9C847'
     }, {
         value: 3,
-        label: '轻度污染（三）'
+        label: '轻度污染（三）',
+        color: '#f08f30'
     }, {
         value: 4,
-        label: '中度污染（四）'
+        label: '中度污染（四）',
+        color: '#dd5449'
     }, {
         value: 5,
-        label: '重度污染（五）'
+        label: '重度污染（五）',
+        color: '#b04773'
     }, {
         value: 6,
-        label: '严重污染（六）'
+        label: '严重污染（六）',
+        color: '#762841'
     }]
 })
 
+const isDataLoaded = ref(false);
+
 // 初始化获取列表
 onMounted(() => {
-    getList()
+    if (!isDataLoaded.value) {
+        getList();
+    }
 })
+
+const findOptionByValue = (value) => {
+    const option = state.options.find(option => option.value === value);
+    return option || { label: '未知', color: '#000000' };  // 提供默认值防止未找到时报错
+};
+
 // 获取列表方法
 const getList = () => {
-    state.loading = true
-    axios.get('/public', {
-        params: {
-            pageNumber: state.currentPage,
-            pageSize: state.pageSize,
-            selection: state.selection,
-            description: state.description,
-            date: state.date
-        }
+    if (isDataLoaded.value) return;
+    const  provinceId = state.selection[0]
+    const  cityId = state.selection[1]
+    console.log('state.currentPage',state.currentPage);
+    console.log('provinceId和cityId',provinceId,cityId);
+    const params = {
+        provinceId: provinceId,
+        cityId: cityId,
+        date: state.date,
+        current:state.currentPage,
+        size:state.pageSize
+    };
+    const filteredParams = Object.fromEntries(
+        Object.entries(params).filter(([, value]) => value !== null && value !== undefined && value !== '')
+    );
+    console.log("filteredParams",filteredParams)
+    axios.get('http://localhost:8085/messageGriddler/viewAllMessageGriddler', {
+        params:filteredParams
     }).then(res => {
-        state.tableData = res.list
-        state.total = res.totalCount
-        state.currentPage = res.currPage
-        state.loading = false
-    })
+        console.log(res)
+        console.log(Array.isArray(res.data) ? 'array' : 'not array');
+        state.startIndex = (state.currentPage - 1) * state.pageSize + 1; // 计算编号起始索引
+        state.tableData = res.data.map((item,index) => ({
+            id: item.messageGriddler.id,
+            publicName: item.publicName,
+            province: getLabelById(item.provinceId),
+            city: getLabelById(item.cityId),
+            level: item.messageGriddler.aqiLevel,
+            date: item.messageGriddler.time.split('T')[0],
+            time: item.messageGriddler.time.split('T')[1].split('.')[0],
+            griddler: item.griddlerName,
+            number: state.startIndex + index // 增加编号字段
+        }));
+        state.total = res.result;
+        isDataLoaded.value = true; // 标记数据已加载
+    }).catch(error => {
+        console.error('Error fetching data: ', error);
+    });
 }
 
 const handleQuery = () => {
-    state.currentPage = 1
+    isDataLoaded.value = false;
+    state.currentPage = 1;
     getList()
 }
 
 // 翻页方法
-const changePage = (val) => {
-    state.currentPage = val
+const handlePageChange = (currentPage) => {
+    state.currentPage = currentPage
+    isDataLoaded.value = false;
     getList()
 }
 
-// const handleChange = (selectedOptions) => {
-//     console.log(selectedOptions)
-//     state.selection = selectedOptions
-// }
-
-const handleDelete = () => {
-    state.selection = ''
-    state.description =''
-    state.date = ''
-    getList()
+const reset = () => {
+    state.selection = '';
+    state.date = '';
+    isDataLoaded.value = false; // 重置数据加载状态
+    state.currentPage = 1; // 重置分页组件的选中项到第一页
+    getList();
 }
+
 
 </script>
 
@@ -116,17 +153,16 @@ const handleDelete = () => {
                         placeholder="确认日期"
                         style="margin-right: 20px"
                 />
-                <el-button type="danger" :@click="handleDelete()">重置</el-button>
-                <el-button type="primary" :@click="handleQuery()">查询</el-button>
+                <el-button type="danger" @click="reset">重置</el-button>
+                <el-button type="primary" @click="handleQuery">查询</el-button>
             </div>
         </template>
         <el-table
-                :load="state.loading"
                 :data="state.tableData"
                 tooltip-effect="dark"
                 style="width: 100%">
             <el-table-column
-                    prop="id"
+                    prop="number"
                     label="编号"
             >
             </el-table-column>
@@ -134,24 +170,20 @@ const handleDelete = () => {
                     prop="province"
                     label="所在省"
             >
-                <!--                <template #default="scope">-->
-                <!--                    <span>{{ $filters.orderMap(scope.row.orderStatus) }}</span>-->
-                <!--                </template>-->
             </el-table-column>
             <el-table-column
                     prop="city"
                     label="所在市"
             >
-                <!--                <template #default='scope'>-->
-                <!--                    <span v-if="scope.row.payType == 1">微信支付</span>-->
-                <!--                    <span v-else-if="scope.row.payType == 2">支付宝支付</span>-->
-                <!--                    <span v-else>未知</span>-->
-                <!--                </template>-->
             </el-table-column>
             <el-table-column
                     prop="level"
-                    label="AQI等级"
-            >
+                    label="AQI等级">
+                <template #default="scope">
+                    <span :style="{ color: findOptionByValue(scope.row.level).color, fontWeight: 'bold' }">
+                        {{ findOptionByValue(scope.row.level).label }}
+                    </span>
+                </template>
             </el-table-column>
             <el-table-column
                     prop="date"
@@ -187,7 +219,7 @@ const handleDelete = () => {
                 :total="state.total"
                 :page-size="state.pageSize"
                 :current-page="state.currentPage"
-                @current-change="changePage"
+                @current-change="handlePageChange"
         />
     </el-card>
         </template>
