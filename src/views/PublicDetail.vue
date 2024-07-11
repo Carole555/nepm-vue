@@ -114,6 +114,7 @@ const getAssignedTable = () =>{
         <el-table-column
             prop="label"
             label="项目"
+            width="100"
         >
             <template #default="scope">
                 {{ scope.row.label }}
@@ -127,10 +128,16 @@ const getAssignedTable = () =>{
                 <div v-if="scope.row.label === '现场照片'">
                     <img :src="scope.row.value" alt="现场照片" style="width: 100px; height: 100px;" />
                 </div>
+                <div v-else-if="scope.row.label === '当前状态'">
+                    <span style="color: #73b1ff; background-color: #e0f7ff; padding: 4px 8px; border-radius: 4px;">
+                        {{ scope.row.value }}
+                    </span>
+                </div>
                 <div v-else>
                     {{ scope.row.value }}
                 </div>
             </template>
+
         </el-table-column>
     </el-table>
     </el-card>

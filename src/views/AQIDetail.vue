@@ -62,6 +62,7 @@ onMounted(() => {
             <el-table-column
                 prop="label"
                 label="项目"
+                width="100"
             >
                 <template #default="scope">
                     {{ scope.row.label }}

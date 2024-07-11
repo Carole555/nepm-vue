@@ -159,6 +159,7 @@ const assignGriddler = () => {
                     <el-table-column
                         prop="label"
                         label="项目"
+                        width="100"
                     >
                         <template #default="scope">
                             {{ scope.row.label }}
@@ -203,7 +204,7 @@ const assignGriddler = () => {
                         </el-option>
                     </el-select>
 
-                    <el-button style="margin-left: 10px" @click="assignGriddler">指派</el-button>
+                    <el-button type="primary" style="margin-left: 10px" @click="assignGriddler">指派</el-button>
                 </div>
             </el-card>
         </template>
