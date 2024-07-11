@@ -54,6 +54,7 @@ const getUnassignedTable = () =>{
             {label: "反馈信息所在地址", value: `${getLabelById(data.provinceId)} ${getLabelById(data.cityId)} ${data.address}`},
             {label: "反馈信息描述", value: data.description},
             {label: "预估等级", value: level.find(l => l.value === data.level).label},
+            {label: "现场照片", value: 'http://10.25.41.249:9000/nep/b1.png'},//value应为对应的照片地址
             {label: "反馈日期时间", value: `${data.date.split('T')[0]} ${data.date.split('T')[1].split('.')[0]}`}
         ];
     }).catch(error => {
@@ -78,9 +79,10 @@ const getAssignedTable = () =>{
             {label: "反馈信息所在地址", value: `${getLabelById(data.provinceId)} ${getLabelById(data.cityId)} ${data.address}`},
             {label: "反馈信息描述", value: data.description},
             {label: "预估等级", value: level.find(l => l.value === data.level).label},
+            {label: "现场照片", value: 'http://10.25.41.249:9000/nep/b1.png'},//value应为对应的照片地址
             {label: "反馈日期时间", value: `${data.date.split('T')[0]} ${data.date.split('T')[1].split('.')[0]}`},
             {label: "负责网格员信息", value: `${assignData.griddler.name}，${assignData.griddler.phone}`},
-            {label: "当前状态", value: assignData.s},
+            {label: "当前状态", value: assignData.s}
         ];
 
         if (assignData.messageGriddler) {
