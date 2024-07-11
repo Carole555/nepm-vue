@@ -40,7 +40,7 @@ onMounted(() => {
             {label: "网格员信息", value: `${res.griddlerName}，${res.griddlerPhone}`},
             {label: "公众监督员信息", value: `${res.publicName}，${res.publicPhone}`},
             {label: "公众监督员反馈信息描述", value: res.description},
-            {label: "现场照片", value: 'http://192.168.40.129:19000/nep/2.png'}
+            {label: "现场照片", value: 'http://10.25.41.249:9000/nep/b1.png'}//value应为对应的照片地址
         ];
     }).catch(error => {
         ElMessage.error("数据获取出现问题，请联系开发人员进行检查")
