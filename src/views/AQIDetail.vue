@@ -39,7 +39,8 @@ onMounted(() => {
             {label: "确认日期时间", value: `${res.time.split('T')[0]} ${res.time.split('T')[1].split('.')[0]}`},
             {label: "网格员信息", value: `${res.griddlerName}，${res.griddlerPhone}`},
             {label: "公众监督员信息", value: `${res.publicName}，${res.publicPhone}`},
-            {label: "公众监督员反馈信息描述", value: res.description}
+            {label: "公众监督员反馈信息描述", value: res.description},
+            {label: "现场照片", value: 'http://192.168.40.129:19000/nep/2.png'}
         ];
     }).catch(error => {
         ElMessage.error("数据获取出现问题，请联系开发人员进行检查")

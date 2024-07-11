@@ -68,7 +68,7 @@ const submitForm = async () => {
                   ElMessage('登录成功')
                   window.location.href = '/#/home'
                 }else if(res.dname === 'griddler'){
-                  localStorage.setItem('userId', res.id);// 存储用户ID
+                  localStorage.setItem('userId', res.user.id);// 存储用户ID
                   ElMessage('登录成功')
                   window.location.href = '/#/feedbackTask'
                 }
@@ -95,7 +95,6 @@ const submitForm = async () => {
     justify-content: center;
     align-items: center;
     width: 100%;
-    //background-color: #fff;
 }
 .login-container {
     width: 420px;

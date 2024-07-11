@@ -116,14 +116,21 @@ const assignGriddler = () => {
         ElMessage.error("请先选择一个指派对象");
         return;
     }
-    const assignData = {
+    let assignData = {
         messageId: messageId,
         griddlerId: state.griddler,
         statusManager: state.isRemoteAssign ? 1 : 0,
-        provinceId: state.selection[0],
-        cityId: state.selection[1],
+        provinceId: state.selection[0], // 默认使用级联选择器中选中的省份ID
+        cityId: state.selection[1], // 默认使用级联选择器中选中的城市ID
         status: 0
     };
+
+    if (state.isRemoteAssign) {
+        // 如果是异地指派，使用被指派人员自身的省份ID和城市ID
+        const selectedGriddler = state.options.find(item => item.value === state.griddler);
+        assignData.provinceId = selectedGriddler.provinceId;
+        assignData.cityId = selectedGriddler.cityId;
+    }
 
     axios.post('http://localhost:8086/messageManager/creatAssignedMessageManager', assignData)
         .then(() => {
